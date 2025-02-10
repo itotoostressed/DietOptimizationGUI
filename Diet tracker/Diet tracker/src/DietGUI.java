@@ -29,8 +29,9 @@ public class DietGUI extends JFrame {
         }
         setTitle("Diet Optimizer");
         setLayout(null);
-        setSize(800, 800);
+        setSize(800, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        getContentPane().setBackground(Color.CYAN);
 
         JLabel budgetLabel = new JLabel("Current budget: ");
         budgetLabel.setBounds(100, 30, 100, 60);
@@ -46,8 +47,6 @@ public class DietGUI extends JFrame {
         calculateButton.setVisible(true);
         calculateButton.setBounds(250, 230, 300, 75);
 
-
-
         Object[][] information = new Object[numberOfFoods][Collumns.length]; //Setting up 2d array to be put on JTable
         for (int l = 0; l<numberOfFoods; l++){ //for loop to add the data of all the arrays excluding the amount of servings
             information[l][0] = foodNames[l];
@@ -57,7 +56,7 @@ public class DietGUI extends JFrame {
         }
         JTable resultArea = new JTable(information, Collumns); //initializing JTable
         JScrollPane resultPane = new JScrollPane(resultArea); //initializing JScrollPane
-        resultPane.setBounds(0, 400, 800, 200);
+        resultPane.setBounds(0, 360, 800, 100);
         resultArea.setFont(new Font("Serif", Font.BOLD, 16));
         resultArea.setVisible(true);
         resultPane.setVisible(true);
@@ -77,25 +76,25 @@ public class DietGUI extends JFrame {
                     if (budget < 0) {
                         JOptionPane.showMessageDialog(DietGUI.this, "please get more money.");
                     }
-                    constraints.add(new LinearConstraint(caloriePerServing, Relationship.GEQ, weight*10-600)); //adding constraints for calories
+                    constraints.add(new LinearConstraint(caloriePerServing, Relationship.LEQ, weight*10)); //adding constraints for calories
+//                    constraints.add(new LinearConstraint(caloriePerServing, Relationship.GEQ, weight*7)); //adding constraints for calories
                     constraints.add(new LinearConstraint(costPerServing, Relationship.LEQ, budget)); //adding constraints for cost. GEQ = greater than or equal to
 
                     SimplexSolver solver = new SimplexSolver(); //the solver for the linear equation
                     PointValuePair solution = solver.optimize(
                             new LinearConstraintSet(constraints), //adds the new set of constraints
-                            objectiveFunction, //current objective
-                            GoalType.MAXIMIZE, //maximizes protein
+                            objectiveFunction,
+                            GoalType.MAXIMIZE,
                             new NonNegativeConstraint(true)); //ensures that none of the values go below zero
                     if (solution != null) {
                         double[] amounts = solution.getPoint(); //gets information from the array
                         for (int l = 0; l<numberOfFoods; l++){ //for loop to add the calculated serving amounts into the JTable
                             information[l][4] = amounts[l];
                         }
-                        add(resultPane);
-                        repaint(); //ensures the JFrame is updated after adding resultPane
-                    } else {
-                        System.out.println("No solution found.");
                     }
+                    System.out.println(solution);
+                    add(resultPane);
+                    repaint(); //ensures the JFrame is updated after adding resultPane
 
                 }
                 catch (NumberFormatException e2) { //If user inputs a letter, then will print out error message
