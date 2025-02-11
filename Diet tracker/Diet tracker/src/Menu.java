@@ -5,21 +5,19 @@ import javax.swing.*;
 
 public class Menu extends JFrame {
     private boolean login = false;
-
+    User currentUser = new User(); //creates a new user class that checks for login and everything else.
 
     public Menu() {
         setTitle("Diet Planner");
         setSize(800, 400);
-        setDefaultCloseOperation(3);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
         getContentPane().setBackground(Color.CYAN);
 
-        JLabel welcome = new JLabel("<html>Welcome to the diet optimizer!<br/>please input your username and password.</html>", SwingConstants.CENTER);
+        JLabel welcome = new JLabel("Welcome to the diet optimizer!", SwingConstants.CENTER);
         welcome.setBounds(0, 0, 800, 60);
         welcome.setFont(new Font("Serif", 1, 20));
         add(welcome, "North");
-
-        //can add JLabels here, as USERNAME, and PASSWORD above the textFields, but it seems inefficient. Can add later!
 
         JLabel usernameTitle = new JLabel("Username:");
         usernameTitle.setBounds(150, 100, 100, 30);
@@ -40,27 +38,36 @@ public class Menu extends JFrame {
         JButton newAccount = new JButton();
         newAccount.setVisible(true);
         newAccount.setText("create account");
-//        newAccount.setBounds();
+        newAccount.setBounds(450, 260, 200, 50);
+        add(newAccount);
 
         JButton loginButton = new JButton();
-        loginButton.setBounds(300, 260, 200, 50);
+        loginButton.setBounds(150, 260, 200, 50);
         loginButton.setText("Login");
         loginButton.setVisible(true);
         add(loginButton);
 
+        newAccount.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentUser.checkUP(username.getText(), password.getText())) {
+                    JOptionPane.showMessageDialog(Menu.this, "There is already an account with these details ");
+                }
+                else {
+                    currentUser = new User(username.getText(), password.getText());
+                }
+            }
+        });
+
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (currentUser.checkUP(username.getText(), password.getText())) {
+                    setVisible(false);
+                }else {
+                    JOptionPane.showMessageDialog(Menu.this, "Incorrect password or username");
+                }
                 login = true;
-                setVisible(false);
-//                User currentUser = new User(); //creates a new user class that checks for login and everything else.
-//                if (currentUser.checkUP(username.getText(), password.getText())) {
-//                    System.out.println("this is a previous user");
-//                }else {
-//                    currentUser.setInfo(username.getText(), password.getText());
-//                }
-//                if ()
-                //file IO goes here. Or you could create a new JPanel/Frame to lead the user to a login screen
             }
         });
     }
