@@ -6,6 +6,7 @@ import java.awt.*;
 import java.util.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.io.*;
 
 public class DietGUI extends JFrame {
     int budget;
@@ -24,9 +25,9 @@ public class DietGUI extends JFrame {
     public DietGUI() {
         double[] nonNegative = {0, 0, 0, 0, 0};
         for (int i = 0; i < numberOfFoods; i++) {
-//            nonNegative[i] = 1; //sets non negative constraint for the current food
-//            constraints.add(new LinearConstraint(nonNegative, Relationship.GEQ, 0));
-//            nonNegative [i] = 0; //resets the constraints back to all zeros
+            nonNegative[i] = 1; //sets non negative constraint for the current food
+            constraints.add(new LinearConstraint(nonNegative, Relationship.GEQ, 0));
+            nonNegative [i] = 0; //resets the constraints back to all zeros
 
             foodLimit[i] = 1;
             constraints.add(new LinearConstraint(foodLimit, Relationship.GEQ, 3));
@@ -52,6 +53,10 @@ public class DietGUI extends JFrame {
         JButton calculateButton = new JButton("Calculate");
         calculateButton.setVisible(true);
         calculateButton.setBounds(250, 230, 300, 75);
+        
+        JButton History = new JButton("History");
+        History.setVisible(true);
+        History.setBounds();
 
         Object[][] information = new Object[numberOfFoods][Collumns.length]; //Setting up 2d array to be put on JTable
 
@@ -109,13 +114,6 @@ public class DietGUI extends JFrame {
                     JOptionPane.showMessageDialog(DietGUI.this, "No feasible solution");
                 }
             }
-        });
-    }
-}
-
-
-
-/*
-- Show checklist of options in food
-- Show list of statistics for every food
- */
+        }); //end of actionListener
+    } //end of DietGUI constructor
+} //end of DietGUI class
