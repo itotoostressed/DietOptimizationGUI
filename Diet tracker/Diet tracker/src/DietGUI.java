@@ -11,22 +11,28 @@ public class DietGUI extends JFrame {
     int budget;
     int weight;
     int numberOfFoods = 5;
-    String[] Collumns = {"Foods", "Protein/Serving", "Calories/Serving", "Cost/Serving", "Amount of servings"};
+    String[] Collumns = {"Foods", "Total Protein", "Total Calories", "Total Cost", "Amount of servings"};
     String[] foodNames = {"Chicken", "Beef", "Lamb", "Fries", "Rice"};
-    double[] proteinPerServing = {25, 29, 26, 2, 1}; // protein for chicken, beef, lamb, fries, rice in order
-    double[] costPerServing = {7, 5, 6, 3, 2};
-    double[] caloriePerServing = {250, 294, 230, 500, 150};
+    double[] proteinPerServing = {25, 27, 26, 2, 3}; // protein for chicken, beef, lamb, fries, rice in order
+    double[] costPerServing = {17, 15, 16.5, 5, 6};
+    double[] caloriePerServing = {250, 264, 255, 500, 150};
+    double[] foodLimit = {0, 0, 0, 0, 0};
 
     LinearObjectiveFunction objectiveFunction = new LinearObjectiveFunction(proteinPerServing, 0); //maximize protein
-    Collection<LinearConstraint> constraints = new ArrayList<>();
+    Collection<LinearConstraint> constraints = new ArrayList<>(); //setup arrayList for constraints
 
     public DietGUI() {
         double[] nonNegative = {0, 0, 0, 0, 0};
         for (int i = 0; i < numberOfFoods; i++) {
-            nonNegative[i] = 1; //sets non negative constraint for the current food
-            constraints.add(new LinearConstraint(nonNegative, Relationship.GEQ, 0));
-            nonNegative [i] = 0; //resets the constraints back to all zeros
+//            nonNegative[i] = 1; //sets non negative constraint for the current food
+//            constraints.add(new LinearConstraint(nonNegative, Relationship.GEQ, 0));
+//            nonNegative [i] = 0; //resets the constraints back to all zeros
+
+            foodLimit[i] = 1;
+            constraints.add(new LinearConstraint(foodLimit, Relationship.GEQ, 3));
+            foodLimit[i] = 0;
         }
+
         setTitle("Diet Optimizer");
         setLayout(null);
         setSize(800, 500);
@@ -48,12 +54,7 @@ public class DietGUI extends JFrame {
         calculateButton.setBounds(250, 230, 300, 75);
 
         Object[][] information = new Object[numberOfFoods][Collumns.length]; //Setting up 2d array to be put on JTable
-        for (int l = 0; l<numberOfFoods; l++){ //for loop to add the data of all the arrays excluding the amount of servings
-            information[l][0] = foodNames[l];
-            information[l][1] = proteinPerServing[l];
-            information[l][2] = caloriePerServing[l];
-            information[l][3] = costPerServing[l];
-        }
+
         JTable resultArea = new JTable(information, Collumns); //initializing JTable
         JScrollPane resultPane = new JScrollPane(resultArea); //initializing JScrollPane
         resultPane.setBounds(0, 360, 800, 100);
@@ -76,8 +77,10 @@ public class DietGUI extends JFrame {
                     if (budget < 0) {
                         JOptionPane.showMessageDialog(DietGUI.this, "please get more money.");
                     }
-                    constraints.add(new LinearConstraint(caloriePerServing, Relationship.LEQ, weight*10)); //adding constraints for calories
-//                    constraints.add(new LinearConstraint(caloriePerServing, Relationship.GEQ, weight*7)); //adding constraints for calories
+
+                    constraints.clear(); //reset previous constraints
+                    constraints.add(new LinearConstraint(caloriePerServing, Relationship.GEQ, weight*5));
+                    constraints.add(new LinearConstraint(caloriePerServing, Relationship.LEQ, weight*8)); //adding constraints for calories
                     constraints.add(new LinearConstraint(costPerServing, Relationship.LEQ, budget)); //adding constraints for cost. GEQ = greater than or equal to
 
                     SimplexSolver solver = new SimplexSolver(); //the solver for the linear equation
@@ -89,13 +92,15 @@ public class DietGUI extends JFrame {
                     if (solution != null) {
                         double[] amounts = solution.getPoint(); //gets information from the array
                         for (int l = 0; l<numberOfFoods; l++){ //for loop to add the calculated serving amounts into the JTable
+                            information[l][0] = foodNames[l];
+                            information[l][1] = proteinPerServing[l] * amounts[l];
+                            information[l][2] = caloriePerServing[l] * amounts[l];
+                            information[l][3] = costPerServing[l] * amounts[l];
                             information[l][4] = amounts[l];
                         }
                     }
-                    System.out.println(solution);
-                    add(resultPane);
+                    add(resultPane); //adds the new results
                     repaint(); //ensures the JFrame is updated after adding resultPane
-
                 }
                 catch (NumberFormatException e2) { //If user inputs a letter, then will print out error message
                     JOptionPane.showMessageDialog(DietGUI.this, "Please enter a number");
