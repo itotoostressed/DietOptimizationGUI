@@ -1,0 +1,202 @@
+<html>
+<head>
+<title>DietGUI.java</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #cf8e6d;}
+.s1 { color: #bcbec4;}
+.s2 { color: #bcbec4;}
+.s3 { color: #2aacb8;}
+.s4 { color: #6aab73;}
+.s5 { color: #7a7e85;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+DietGUI.java</font>
+</center></td></tr></table>
+<pre><span class="s0">import </span><span class="s1">org</span><span class="s2">.</span><span class="s1">apache</span><span class="s2">.</span><span class="s1">commons</span><span class="s2">.</span><span class="s1">math3</span><span class="s2">.</span><span class="s1">optim</span><span class="s2">.</span><span class="s1">PointValuePair</span><span class="s2">;</span>
+<span class="s0">import </span><span class="s1">org</span><span class="s2">.</span><span class="s1">apache</span><span class="s2">.</span><span class="s1">commons</span><span class="s2">.</span><span class="s1">math3</span><span class="s2">.</span><span class="s1">optim</span><span class="s2">.</span><span class="s1">linear</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">org</span><span class="s2">.</span><span class="s1">apache</span><span class="s2">.</span><span class="s1">commons</span><span class="s2">.</span><span class="s1">math3</span><span class="s2">.</span><span class="s1">optim</span><span class="s2">.</span><span class="s1">nonlinear</span><span class="s2">.</span><span class="s1">scalar</span><span class="s2">.</span><span class="s1">GoalType</span><span class="s2">;</span>
+
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">util</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">javax</span><span class="s2">.</span><span class="s1">swing</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">awt</span><span class="s2">.</span><span class="s1">event</span><span class="s2">.*;</span>
+<span class="s0">import </span><span class="s1">java</span><span class="s2">.</span><span class="s1">io</span><span class="s2">.*;</span>
+
+<span class="s0">public class </span><span class="s1">DietGUI </span><span class="s0">extends </span><span class="s1">JFrame </span><span class="s2">{</span>
+    <span class="s0">int </span><span class="s1">budget</span><span class="s2">;</span>
+    <span class="s0">int </span><span class="s1">weight</span><span class="s2">;</span>
+    <span class="s0">int </span><span class="s1">numberOfFoods </span><span class="s2">= </span><span class="s3">5</span><span class="s2">;</span>
+    <span class="s1">String</span><span class="s2">[] </span><span class="s1">Collumns </span><span class="s2">= {</span><span class="s4">&quot;Foods&quot;</span><span class="s2">, </span><span class="s4">&quot;Total Protein&quot;</span><span class="s2">, </span><span class="s4">&quot;Total Calories&quot;</span><span class="s2">, </span><span class="s4">&quot;Total Cost&quot;</span><span class="s2">, </span><span class="s4">&quot;Amount of servings&quot;</span><span class="s2">};</span>
+    <span class="s1">String</span><span class="s2">[] </span><span class="s1">foodNames </span><span class="s2">= {</span><span class="s4">&quot;Chicken&quot;</span><span class="s2">, </span><span class="s4">&quot;Beef&quot;</span><span class="s2">, </span><span class="s4">&quot;Lamb&quot;</span><span class="s2">, </span><span class="s4">&quot;Fries&quot;</span><span class="s2">, </span><span class="s4">&quot;Rice&quot;</span><span class="s2">};</span>
+    <span class="s0">double</span><span class="s2">[] </span><span class="s1">proteinPerServing </span><span class="s2">= {</span><span class="s3">25</span><span class="s2">, </span><span class="s3">27</span><span class="s2">, </span><span class="s3">26</span><span class="s2">, </span><span class="s3">2</span><span class="s2">, </span><span class="s3">3</span><span class="s2">}; </span><span class="s5">// protein for chicken, beef, lamb, fries, rice in order</span>
+    <span class="s0">double</span><span class="s2">[] </span><span class="s1">costPerServing </span><span class="s2">= {</span><span class="s3">14</span><span class="s2">, </span><span class="s3">15</span><span class="s2">, </span><span class="s3">16.5</span><span class="s2">, </span><span class="s3">5</span><span class="s2">, </span><span class="s3">6</span><span class="s2">};</span>
+    <span class="s0">double</span><span class="s2">[] </span><span class="s1">caloriePerServing </span><span class="s2">= {</span><span class="s3">250</span><span class="s2">, </span><span class="s3">270</span><span class="s2">, </span><span class="s3">245</span><span class="s2">, </span><span class="s3">400</span><span class="s2">, </span><span class="s3">250</span><span class="s2">};</span>
+    <span class="s0">double</span><span class="s2">[] </span><span class="s1">maxFoods </span><span class="s2">= {</span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">0</span><span class="s2">};</span>
+    <span class="s0">double</span><span class="s2">[] </span><span class="s1">amounts</span><span class="s2">;</span>
+
+    <span class="s1">LinearObjectiveFunction objectiveFunction </span><span class="s2">= </span><span class="s0">new </span><span class="s1">LinearObjectiveFunction</span><span class="s2">(</span><span class="s1">proteinPerServing</span><span class="s2">, </span><span class="s3">0</span><span class="s2">); </span><span class="s5">//maximize protein</span>
+    <span class="s1">Collection</span><span class="s2">&lt;</span><span class="s1">LinearConstraint</span><span class="s2">&gt; </span><span class="s1">constraints </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ArrayList</span><span class="s2">&lt;&gt;(); </span><span class="s5">//setup arrayList for constraints</span>
+
+    <span class="s0">public </span><span class="s1">DietGUI</span><span class="s2">() {</span>
+
+        <span class="s1">Object</span><span class="s2">[][] </span><span class="s1">information </span><span class="s2">= </span><span class="s0">new </span><span class="s1">Object</span><span class="s2">[</span><span class="s1">numberOfFoods</span><span class="s2">][</span><span class="s1">Collumns</span><span class="s2">.</span><span class="s1">length</span><span class="s2">]; </span><span class="s5">//Setting up 2d array to be put on JTable</span>
+
+        <span class="s5">// initialize GUI</span>
+        <span class="s1">setTitle</span><span class="s2">(</span><span class="s4">&quot;Diet Optimizer&quot;</span><span class="s2">);</span>
+        <span class="s1">setLayout</span><span class="s2">(</span><span class="s0">null</span><span class="s2">);</span>
+        <span class="s1">setSize</span><span class="s2">(</span><span class="s3">800</span><span class="s2">, </span><span class="s3">500</span><span class="s2">);</span>
+        <span class="s1">setDefaultCloseOperation</span><span class="s2">(</span><span class="s1">EXIT_ON_CLOSE</span><span class="s2">);</span>
+        <span class="s1">getContentPane</span><span class="s2">().</span><span class="s1">setBackground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">CYAN</span><span class="s2">);</span>
+
+        <span class="s1">JLabel budgetLabel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JLabel</span><span class="s2">(</span><span class="s4">&quot;Current budget: &quot;</span><span class="s2">);</span>
+        <span class="s1">budgetLabel</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif &quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">BOLD</span><span class="s2">, </span><span class="s3">15</span><span class="s2">));</span>
+        <span class="s1">budgetLabel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s3">340</span><span class="s2">, </span><span class="s3">0</span><span class="s2">, </span><span class="s3">200</span><span class="s2">, </span><span class="s3">60</span><span class="s2">);</span>
+
+        <span class="s1">JTextField budgetField </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JTextField</span><span class="s2">();</span>
+        <span class="s1">budgetField</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s3">225</span><span class="s2">, </span><span class="s3">50</span><span class="s2">, </span><span class="s3">350</span><span class="s2">, </span><span class="s3">40</span><span class="s2">);</span>
+
+        <span class="s1">JLabel weightLabel </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JLabel</span><span class="s2">(</span><span class="s4">&quot;Current Body Weight:&quot;</span><span class="s2">);</span>
+        <span class="s1">weightLabel</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s3">320</span><span class="s2">, </span><span class="s3">90</span><span class="s2">, </span><span class="s3">200</span><span class="s2">, </span><span class="s3">60</span><span class="s2">);</span>
+        <span class="s1">weightLabel</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif &quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">BOLD</span><span class="s2">, </span><span class="s3">15</span><span class="s2">));</span>
+
+        <span class="s1">JTextField weightField </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JTextField</span><span class="s2">();</span>
+        <span class="s1">weightField</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s3">225</span><span class="s2">, </span><span class="s3">140</span><span class="s2">, </span><span class="s3">350</span><span class="s2">, </span><span class="s3">40</span><span class="s2">);</span>
+
+        <span class="s1">JButton calculateButton </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JButton</span><span class="s2">(</span><span class="s4">&quot;Calculate&quot;</span><span class="s2">);</span>
+        <span class="s1">calculateButton</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">calculateButton</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s3">50</span><span class="s2">, </span><span class="s3">230</span><span class="s2">, </span><span class="s3">300</span><span class="s2">, </span><span class="s3">75</span><span class="s2">);</span>
+
+        <span class="s1">JButton previousResult </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JButton</span><span class="s2">(</span><span class="s4">&quot;last result&quot;</span><span class="s2">);</span>
+        <span class="s1">previousResult</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">previousResult</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s3">450</span><span class="s2">, </span><span class="s3">230</span><span class="s2">, </span><span class="s3">300</span><span class="s2">, </span><span class="s3">75</span><span class="s2">);</span>
+
+        <span class="s1">JTable resultArea </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JTable</span><span class="s2">(</span><span class="s1">information</span><span class="s2">, </span><span class="s1">Collumns</span><span class="s2">); </span><span class="s5">//initializing JTable</span>
+        <span class="s1">resultArea</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">BOLD</span><span class="s2">, </span><span class="s3">16</span><span class="s2">));</span>
+        <span class="s1">resultArea</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">resultArea</span><span class="s2">.</span><span class="s1">setBackground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">CYAN</span><span class="s2">);</span>
+
+        <span class="s1">JScrollPane resultPane </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JScrollPane</span><span class="s2">(</span><span class="s1">resultArea</span><span class="s2">); </span><span class="s5">//initializing JScrollPane</span>
+        <span class="s1">resultPane</span><span class="s2">.</span><span class="s1">setBounds</span><span class="s2">(</span><span class="s3">0</span><span class="s2">, </span><span class="s3">360</span><span class="s2">, </span><span class="s3">800</span><span class="s2">, </span><span class="s3">100</span><span class="s2">);</span>
+        <span class="s1">resultPane</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+
+        <span class="s1">JFrame historyFrame </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JFrame</span><span class="s2">();</span>
+        <span class="s1">historyFrame</span><span class="s2">.</span><span class="s1">setSize</span><span class="s2">(</span><span class="s3">800</span><span class="s2">, </span><span class="s3">300</span><span class="s2">);</span>
+        <span class="s1">historyFrame</span><span class="s2">.</span><span class="s1">setLayout</span><span class="s2">(</span><span class="s0">new </span><span class="s1">BorderLayout</span><span class="s2">());</span>
+
+        <span class="s1">JLabel title </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JLabel</span><span class="s2">(</span><span class="s4">&quot;Most recent result: &quot;</span><span class="s2">);</span>
+        <span class="s1">title</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">title</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">BOLD</span><span class="s2">, </span><span class="s3">16</span><span class="s2">));</span>
+        <span class="s1">title</span><span class="s2">.</span><span class="s1">setSize</span><span class="s2">(</span><span class="s3">600</span><span class="s2">, </span><span class="s3">100</span><span class="s2">);</span>
+
+        <span class="s1">JButton goBack </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JButton</span><span class="s2">(</span><span class="s4">&quot;return&quot;</span><span class="s2">);</span>
+        <span class="s1">goBack</span><span class="s2">.</span><span class="s1">setSize</span><span class="s2">(</span><span class="s3">200</span><span class="s2">, </span><span class="s3">75</span><span class="s2">);</span>
+        <span class="s1">goBack</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+        <span class="s1">historyFrame</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">goBack</span><span class="s2">, </span><span class="s1">BorderLayout</span><span class="s2">.</span><span class="s1">SOUTH</span><span class="s2">);</span>
+
+        <span class="s1">add</span><span class="s2">(</span><span class="s1">budgetLabel</span><span class="s2">); </span><span class="s5">//adding rest of components</span>
+        <span class="s1">add</span><span class="s2">(</span><span class="s1">budgetField</span><span class="s2">);</span>
+        <span class="s1">add</span><span class="s2">(</span><span class="s1">weightLabel</span><span class="s2">);</span>
+        <span class="s1">add</span><span class="s2">(</span><span class="s1">weightField</span><span class="s2">);</span>
+        <span class="s1">add</span><span class="s2">(</span><span class="s1">calculateButton</span><span class="s2">);</span>
+        <span class="s1">add</span><span class="s2">(</span><span class="s1">previousResult</span><span class="s2">);</span>
+
+        <span class="s1">calculateButton</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s0">new </span><span class="s1">ActionListener</span><span class="s2">() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">actionPerformed</span><span class="s2">(</span><span class="s1">ActionEvent e</span><span class="s2">) {</span>
+                <span class="s0">try </span><span class="s2">{</span>
+                    <span class="s1">soundPlayer</span><span class="s2">.</span><span class="s1">playSound</span><span class="s2">(</span><span class="s4">&quot;mixkit-cool-interface-click-tone-2568.wav&quot;</span><span class="s2">); </span><span class="s5">//plays clicking sound</span>
+                    <span class="s1">budget </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">budgetField</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">()); </span><span class="s5">//parseInt the text inputted in the field to get inputted number</span>
+                    <span class="s1">weight </span><span class="s2">= </span><span class="s1">Integer</span><span class="s2">.</span><span class="s1">parseInt</span><span class="s2">(</span><span class="s1">weightField</span><span class="s2">.</span><span class="s1">getText</span><span class="s2">());</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">budget </span><span class="s2">&lt; </span><span class="s3">0</span><span class="s2">) {</span>
+                        <span class="s1">JOptionPane</span><span class="s2">.</span><span class="s1">showMessageDialog</span><span class="s2">(</span><span class="s1">DietGUI</span><span class="s2">.</span><span class="s0">this</span><span class="s2">, </span><span class="s4">&quot;please get more money.&quot;</span><span class="s2">);</span>
+                    <span class="s2">}</span>
+                    <span class="s1">constraints</span><span class="s2">.</span><span class="s1">clear</span><span class="s2">(); </span><span class="s5">//reset previous constraints</span>
+                    <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">i </span><span class="s2">= </span><span class="s3">0</span><span class="s2">; </span><span class="s1">i </span><span class="s2">&lt; </span><span class="s1">numberOfFoods</span><span class="s2">; </span><span class="s1">i</span><span class="s2">++) { </span><span class="s5">//loop to add the constraint to every food</span>
+                        <span class="s1">maxFoods</span><span class="s2">[</span><span class="s1">i</span><span class="s2">] = </span><span class="s3">1</span><span class="s2">;</span>
+                        <span class="s1">constraints</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">LinearConstraint</span><span class="s2">(</span><span class="s1">maxFoods</span><span class="s2">, </span><span class="s1">Relationship</span><span class="s2">.</span><span class="s1">LEQ</span><span class="s2">, </span><span class="s3">3</span><span class="s2">));</span>
+                        <span class="s1">maxFoods </span><span class="s2">[</span><span class="s1">i</span><span class="s2">] = </span><span class="s3">0</span><span class="s2">;</span>
+                    <span class="s2">}</span>
+                    <span class="s1">constraints</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">LinearConstraint</span><span class="s2">(</span><span class="s1">caloriePerServing</span><span class="s2">, </span><span class="s1">Relationship</span><span class="s2">.</span><span class="s1">GEQ</span><span class="s2">, </span><span class="s1">weight</span><span class="s2">*</span><span class="s3">5</span><span class="s2">));</span>
+                    <span class="s1">constraints</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">LinearConstraint</span><span class="s2">(</span><span class="s1">caloriePerServing</span><span class="s2">, </span><span class="s1">Relationship</span><span class="s2">.</span><span class="s1">LEQ</span><span class="s2">, </span><span class="s1">weight</span><span class="s2">*</span><span class="s3">8</span><span class="s2">));</span>
+                    <span class="s1">constraints</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s0">new </span><span class="s1">LinearConstraint</span><span class="s2">(</span><span class="s1">costPerServing</span><span class="s2">, </span><span class="s1">Relationship</span><span class="s2">.</span><span class="s1">LEQ</span><span class="s2">, </span><span class="s1">budget</span><span class="s2">));</span>
+
+                    <span class="s1">SimplexSolver solver </span><span class="s2">= </span><span class="s0">new </span><span class="s1">SimplexSolver</span><span class="s2">();  </span><span class="s5">//the solver for the linear equation</span>
+                    <span class="s1">PointValuePair solution </span><span class="s2">= </span><span class="s1">solver</span><span class="s2">.</span><span class="s1">optimize</span><span class="s2">(</span>
+                            <span class="s0">new </span><span class="s1">LinearConstraintSet</span><span class="s2">(</span><span class="s1">constraints</span><span class="s2">),  </span><span class="s5">//adds the new set of constraints</span>
+                            <span class="s1">objectiveFunction</span><span class="s2">,</span>
+                            <span class="s1">GoalType</span><span class="s2">.</span><span class="s1">MAXIMIZE</span><span class="s2">,</span>
+                            <span class="s0">new </span><span class="s1">NonNegativeConstraint</span><span class="s2">(</span><span class="s0">true</span><span class="s2">));  </span><span class="s5">//ensures that none of the values go below zero</span>
+                    <span class="s0">if </span><span class="s2">(</span><span class="s1">solution </span><span class="s2">!= </span><span class="s0">null</span><span class="s2">) { </span><span class="s5">//if there is a solution, continue</span>
+                        <span class="s1">amounts </span><span class="s2">= </span><span class="s1">solution</span><span class="s2">.</span><span class="s1">getPoint</span><span class="s2">(); </span><span class="s5">//gets information from the array</span>
+                        <span class="s0">for </span><span class="s2">(</span><span class="s0">int </span><span class="s1">l </span><span class="s2">= </span><span class="s3">0</span><span class="s2">; </span><span class="s1">l</span><span class="s2">&lt;</span><span class="s1">numberOfFoods</span><span class="s2">; </span><span class="s1">l</span><span class="s2">++){ </span><span class="s5">//for loop to add the calculated serving amounts into the JTable</span>
+                            <span class="s1">information</span><span class="s2">[</span><span class="s1">l</span><span class="s2">][</span><span class="s3">0</span><span class="s2">] = </span><span class="s1">foodNames</span><span class="s2">[</span><span class="s1">l</span><span class="s2">];</span>
+                            <span class="s1">information</span><span class="s2">[</span><span class="s1">l</span><span class="s2">][</span><span class="s3">1</span><span class="s2">] = </span><span class="s1">proteinPerServing</span><span class="s2">[</span><span class="s1">l</span><span class="s2">] * </span><span class="s1">amounts</span><span class="s2">[</span><span class="s1">l</span><span class="s2">];</span>
+                            <span class="s1">information</span><span class="s2">[</span><span class="s1">l</span><span class="s2">][</span><span class="s3">2</span><span class="s2">] = </span><span class="s1">caloriePerServing</span><span class="s2">[</span><span class="s1">l</span><span class="s2">] * </span><span class="s1">amounts</span><span class="s2">[</span><span class="s1">l</span><span class="s2">];</span>
+                            <span class="s1">information</span><span class="s2">[</span><span class="s1">l</span><span class="s2">][</span><span class="s3">3</span><span class="s2">] = </span><span class="s1">costPerServing</span><span class="s2">[</span><span class="s1">l</span><span class="s2">] * </span><span class="s1">amounts</span><span class="s2">[</span><span class="s1">l</span><span class="s2">];</span>
+                            <span class="s1">information</span><span class="s2">[</span><span class="s1">l</span><span class="s2">][</span><span class="s3">4</span><span class="s2">] = </span><span class="s1">amounts</span><span class="s2">[</span><span class="s1">l</span><span class="s2">];</span>
+                        <span class="s2">}</span>
+                        <span class="s0">try</span><span class="s2">{ </span><span class="s5">//try catch for printing the array/results into a file</span>
+                            <span class="s1">FileOutputStream fos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">FileOutputStream</span><span class="s2">(</span><span class="s4">&quot;previousResultinfo.txt&quot;</span><span class="s2">);</span>
+                            <span class="s1">ObjectOutputStream oos </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ObjectOutputStream</span><span class="s2">(</span><span class="s1">fos</span><span class="s2">);</span>
+                            <span class="s1">oos</span><span class="s2">.</span><span class="s1">reset</span><span class="s2">();</span>
+                            <span class="s1">oos</span><span class="s2">.</span><span class="s1">writeObject</span><span class="s2">(</span><span class="s1">information</span><span class="s2">);</span>
+                            <span class="s1">oos</span><span class="s2">.</span><span class="s1">close</span><span class="s2">();</span>
+                        <span class="s2">}</span><span class="s0">catch</span><span class="s2">(</span><span class="s1">Exception e3</span><span class="s2">){</span>
+                            <span class="s1">System</span><span class="s2">.</span><span class="s1">err</span><span class="s2">.</span><span class="s1">println</span><span class="s2">(</span><span class="s4">&quot;Error in file writing/reading.&quot;</span><span class="s2">);</span>
+                        <span class="s2">}</span>
+                    <span class="s2">}</span>
+                    <span class="s1">add</span><span class="s2">(</span><span class="s1">resultPane</span><span class="s2">); </span><span class="s5">//adds the new results</span>
+                    <span class="s1">repaint</span><span class="s2">(); </span><span class="s5">//ensures the JFrame is updated after adding resultPane</span>
+                <span class="s2">}</span>
+                <span class="s0">catch </span><span class="s2">(</span><span class="s1">NumberFormatException e2</span><span class="s2">) { </span><span class="s5">//If user inputs a letter, then will print out error message</span>
+                    <span class="s1">JOptionPane</span><span class="s2">.</span><span class="s1">showMessageDialog</span><span class="s2">(</span><span class="s1">DietGUI</span><span class="s2">.</span><span class="s0">this</span><span class="s2">, </span><span class="s4">&quot;Please enter a number&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">catch </span><span class="s2">(</span><span class="s1">NoFeasibleSolutionException e3</span><span class="s2">) {</span>
+                    <span class="s1">JOptionPane</span><span class="s2">.</span><span class="s1">showMessageDialog</span><span class="s2">(</span><span class="s1">DietGUI</span><span class="s2">.</span><span class="s0">this</span><span class="s2">, </span><span class="s4">&quot;No feasible solution&quot;</span><span class="s2">);</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">}); </span><span class="s5">//end of actionListener</span>
+        <span class="s1">previousResult</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s0">new </span><span class="s1">ActionListener</span><span class="s2">() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">actionPerformed</span><span class="s2">(</span><span class="s1">ActionEvent e</span><span class="s2">) {</span>
+                <span class="s0">try </span><span class="s2">{</span>
+                    <span class="s1">soundPlayer</span><span class="s2">.</span><span class="s1">playSound</span><span class="s2">(</span><span class="s4">&quot;mixkit-cool-interface-click-tone-2568.wav&quot;</span><span class="s2">);</span>
+                    <span class="s1">FileInputStream fis </span><span class="s2">= </span><span class="s0">new </span><span class="s1">FileInputStream</span><span class="s2">(</span><span class="s4">&quot;previousResultinfo.txt&quot;</span><span class="s2">);</span>
+                    <span class="s1">ObjectInputStream ois </span><span class="s2">= </span><span class="s0">new </span><span class="s1">ObjectInputStream</span><span class="s2">(</span><span class="s1">fis</span><span class="s2">);</span>
+                    <span class="s1">Object</span><span class="s2">[][] </span><span class="s1">previousInformation </span><span class="s2">= (</span><span class="s1">Object</span><span class="s2">[][]) </span><span class="s1">ois</span><span class="s2">.</span><span class="s1">readObject</span><span class="s2">();</span>
+
+                    <span class="s1">JTable historyTable </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JTable</span><span class="s2">(</span><span class="s1">previousInformation</span><span class="s2">, </span><span class="s1">Collumns</span><span class="s2">);</span>
+                    <span class="s1">historyTable</span><span class="s2">.</span><span class="s1">setFont</span><span class="s2">(</span><span class="s0">new </span><span class="s1">Font</span><span class="s2">(</span><span class="s4">&quot;Serif&quot;</span><span class="s2">, </span><span class="s1">Font</span><span class="s2">.</span><span class="s1">BOLD</span><span class="s2">, </span><span class="s3">16</span><span class="s2">));</span>
+                    <span class="s1">historyTable</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+
+                    <span class="s1">JScrollPane historyScroll </span><span class="s2">= </span><span class="s0">new </span><span class="s1">JScrollPane</span><span class="s2">(</span><span class="s1">historyTable</span><span class="s2">);</span>
+                    <span class="s1">historyScroll</span><span class="s2">.</span><span class="s1">setSize</span><span class="s2">(</span><span class="s3">800</span><span class="s2">, </span><span class="s3">60</span><span class="s2">);</span>
+                    <span class="s1">historyScroll</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+                    <span class="s1">historyTable</span><span class="s2">.</span><span class="s1">setBackground</span><span class="s2">(</span><span class="s1">Color</span><span class="s2">.</span><span class="s1">CYAN</span><span class="s2">);</span>
+
+                    <span class="s1">historyFrame</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">historyScroll</span><span class="s2">, </span><span class="s1">BorderLayout</span><span class="s2">.</span><span class="s1">CENTER</span><span class="s2">);</span>
+                    <span class="s1">historyFrame</span><span class="s2">.</span><span class="s1">add</span><span class="s2">(</span><span class="s1">title</span><span class="s2">, </span><span class="s1">BorderLayout</span><span class="s2">.</span><span class="s1">NORTH</span><span class="s2">);</span>
+                    <span class="s1">historyFrame</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+                    <span class="s1">setVisible</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+                <span class="s2">}</span>
+                <span class="s0">catch </span><span class="s2">(</span><span class="s1">Exception e4</span><span class="s2">) {</span>
+                <span class="s2">}</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+        <span class="s1">goBack</span><span class="s2">.</span><span class="s1">addActionListener</span><span class="s2">(</span><span class="s0">new </span><span class="s1">ActionListener</span><span class="s2">() {</span>
+            <span class="s1">@Override</span>
+            <span class="s0">public void </span><span class="s1">actionPerformed</span><span class="s2">(</span><span class="s1">ActionEvent e</span><span class="s2">) {</span>
+                <span class="s1">soundPlayer</span><span class="s2">.</span><span class="s1">playSound</span><span class="s2">(</span><span class="s4">&quot;mixkit-cool-interface-click-tone-2568.wav&quot;</span><span class="s2">);</span>
+                <span class="s1">historyFrame</span><span class="s2">.</span><span class="s1">setVisible</span><span class="s2">(</span><span class="s0">false</span><span class="s2">);</span>
+                <span class="s1">setVisible</span><span class="s2">(</span><span class="s0">true</span><span class="s2">);</span>
+            <span class="s2">}</span>
+        <span class="s2">});</span>
+    <span class="s2">} </span><span class="s5">//end of DietGUI constructor</span>
+<span class="s2">} </span><span class="s5">//end of DietGUI class</span></pre>
+</body>
+</html>
